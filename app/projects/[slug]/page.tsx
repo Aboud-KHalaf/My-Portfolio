@@ -8,6 +8,8 @@ import { SmartphoneMockup } from '@/components/ui/smartphone-mockup';
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import ProjectTimeline from '@/components/ui/project-timeline';
+import type { Contribution } from '@/lib/contributions/contribution.service';
 
 interface ProjectDetails {
   id: string;
@@ -30,16 +32,18 @@ export default function ProjectDetail() {
   const slug = params.slug as string;
 
   const [project, setProject] = useState<ProjectDetails | null>(null);
+  const [contributions, setContributions] = useState<Contribution[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [constraints, setConstraints] = useState({ left: 0, right: 0 });
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && project) {
       const scrollWidth = scrollRef.current.scrollWidth;
       const offsetWidth = scrollRef.current.offsetWidth;
-      setConstraints({ left: -(scrollWidth - offsetWidth + 40), right: 0 });
+      setConstraints({ left: -(scrollWidth - offsetWidth), right: 0 });
     }
   }, [project, loading]);
 
@@ -77,6 +81,36 @@ export default function ProjectDetail() {
               repo_link: 'https://github.com/aboudkhalaf',
               demo_link: 'https://example.com',
             });
+            // Mock contributions for local dev / demo
+            setContributions([
+              {
+                id: 'c1',
+                project_id: 'mock-id',
+                title: 'Architected Clean Layer Separation',
+                description: 'Designed the entire app using Clean Architecture with strict separation between Data, Domain, and Presentation layers, enabling easy testability and scalability.',
+                contribution_type: 'Architecture',
+                order_index: 1,
+                created_at: '',
+              },
+              {
+                id: 'c2',
+                project_id: 'mock-id',
+                title: 'Built Real-Time State Management',
+                description: 'Implemented Bloc/Cubit state management across all features — including session, feed, and notification streams — ensuring a smooth, predictable UI.',
+                contribution_type: 'Feature',
+                order_index: 2,
+                created_at: '',
+              },
+              {
+                id: 'c3',
+                project_id: 'mock-id',
+                title: 'Optimized Supabase Query Performance',
+                description: 'Reduced average API response time by 60% through targeted Postgres indexing, RLS policy restructuring, and client-side caching strategies.',
+                contribution_type: 'Performance',
+                order_index: 3,
+                created_at: '',
+              },
+            ]);
             setLoading(false);
           }, 800); // Reduced delay for snappier feel
           return () => clearTimeout(timer);
@@ -92,6 +126,18 @@ export default function ProjectDetail() {
         if (!data) throw new Error("Project not found");
 
         setProject(data);
+
+        // Fetch contributions for this project via the API route
+        try {
+          const res = await fetch(`/api/projects/${data.id}/contributions`);
+          if (res.ok) {
+            const json = await res.json();
+            setContributions(json.contributions ?? []);
+          }
+        } catch (contribErr) {
+          // Non-fatal — timeline simply won't render
+          console.warn('[ProjectDetail] Could not fetch contributions:', contribErr);
+        }
       } catch (err: any) {
         console.error("Fetch error:", err.message);
         setError(err.message || "Project not found");
@@ -145,7 +191,7 @@ export default function ProjectDetail() {
     <main className="min-h-screen bg-[#020202] text-white">
       <div className="mx-auto max-w-7xl px-6 py-24">
         <Link
-          href="/"
+          href="/#projects"
           className="group mb-16 inline-flex items-center text-sm font-medium text-zinc-400 transition-colors hover:text-white"
         >
           <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
@@ -239,39 +285,94 @@ export default function ProjectDetail() {
               <div className="h-px flex-1 bg-white/5" />
             </div>
 
-            <div className="relative group overflow-hidden -mx-4">
+            <div className="relative group -mx-6 sm:-mx-12">
               <motion.div
                 ref={scrollRef}
                 drag="x"
                 dragConstraints={constraints}
-                dragElastic={0.05}
-                className="flex gap-8 px-4 cursor-grab active:cursor-grabbing pb-4"
+                dragElastic={0.1}
+                style={{ touchAction: 'pan-y' }}
+                className="flex gap-8 px-6 sm:px-12 pb-12 cursor-grab active:cursor-grabbing"
               >
                 {project.screenshots?.map((screenshot, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="relative min-w-[300px] sm:min-w-[450px] aspect-[9/16] flex-shrink-0 rounded-[2.5rem] overflow-hidden bg-[#050505] shadow-2xl shadow-indigo-500/10 pointer-events-none"
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1, duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+                    onTap={() => setSelectedImage(screenshot)}
+                    className="relative min-w-[260px] sm:min-w-[400px] aspect-[9/16] flex-shrink-0 rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-[#050505] shadow-[0_0_40px_-10px_rgba(79,70,229,0.1)] border border-white/[0.08] cursor-zoom-in select-none group/img"
                   >
                     <Image
                       src={screenshot}
                       alt={`${project.title} screenshot ${index + 1}`}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-500 group-hover/img:scale-105 pointer-events-none"
                       sizes="(max-width: 768px) 300px, 450px"
                       priority={index < 2}
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent transition-opacity group-hover/img:opacity-0 pointer-events-none" />
                   </motion.div>
                 ))}
               </motion.div>
 
               {/* Fog effects for edges */}
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#020202] to-transparent z-10" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#020202] to-transparent z-10" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#020202] to-transparent z-10 opacity-40" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#020202] to-transparent z-10 opacity-40" />
             </div>
           </section>
+
+          {/* ── My Contributions Timeline ── */}
+          {contributions.length > 0 && (
+            <ProjectTimeline contributions={contributions} />
+          )}
+
+          {/* CTA */}
+          <div className="pb-32 pt-8 text-center">
+            <Link
+              href="/#projects"
+              className="inline-flex items-center gap-3 rounded-full bg-white/5 px-10 py-5 text-sm font-bold text-white transition-all hover:bg-white hover:text-black hover:scale-105 active:scale-95 border border-white/10 backdrop-blur-xl"
+            >
+              Explore More Projects
+              <ArrowLeft className="h-4 w-4 rotate-180" />
+            </Link>
+          </div>
+
+          {/* Lightbox Dialog */}
+          <AnimatePresence>
+            {selectedImage && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSelectedImage(null)}
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 sm:p-12 backdrop-blur-sm cursor-zoom-out"
+              >
+                <motion.div
+                  initial={{ scale: 0.9, y: 20 }}
+                  animate={{ scale: 1, y: 0 }}
+                  exit={{ scale: 0.9, y: 20 }}
+                  className="relative max-w-full max-h-full aspect-[9/16] w-[450px]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Image
+                    src={selectedImage}
+                    alt="Project screenshot"
+                    fill
+                    className="rounded-3xl object-contain"
+                    sizes="100vw"
+                  />
+                  <button
+                    onClick={() => setSelectedImage(null)}
+                    className="absolute -top-12 right-0 p-2 text-white/50 hover:text-white transition-colors"
+                  >
+                    Close [×]
+                  </button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </main>

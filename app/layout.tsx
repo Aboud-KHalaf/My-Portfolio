@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} dark scroll-smooth`}>
       <body className="bg-[#020202] text-white antialiased selection:bg-indigo-500/30">
         {/* Universal Background Atmosphere */}
-        <div className="fixed inset-0 z-[-1] overflow-hidden opacity-50">
+        <div className="fixed inset-0 z-[-1] opacity-50">
           <div className="absolute inset-0 bg-[#020202]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(63,94,251,0.05),rgba(252,70,107,0))]" />

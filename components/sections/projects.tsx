@@ -13,6 +13,7 @@ interface Project {
   id: string;
   slug: string;
   title: string;
+  role: string;
   shortDescription: string;
   thumbnail: string;
   techStack: string[];
@@ -30,25 +31,57 @@ function ProjectCard({ project, index }: { project: Project, index: number }) {
       transition={{ delay: index * 0.1 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`relative group ${index === 0 || index === 3 ? 'md:col-span-2' : 'md:col-span-1'}`}
+      className={`relative h-full group ${index === 0 || index === 3 ? 'md:col-span-2' : 'md:col-span-1'}`}
     >
       <Link href={`/projects/${project.slug}`} className="block h-full w-full outline-none">
-        <div className="relative h-full w-full overflow-hidden rounded-[2.5rem] border border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl transition-all duration-500 group-hover:border-indigo-500/50 group-hover:bg-[#0c0c0c] group-hover:scale-[1.01]">
+        <div className="relative h-full w-full overflow-hidden rounded-[2.5rem] border border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl transition-all duration-500 group-hover:border-indigo-500/50 group-hover:bg-[#0c0c0c] group-hover:shadow-[0_0_40px_-10px_rgba(99,102,241,0.2)]">
           <BentoGridItem
-            title={project.title}
-            description={project.shortDescription}
             header={<Skeleton project={project} />}
-            className="h-full w-full bg-transparent p-8"
-            icon={
-              <div className="flex flex-wrap gap-2 mt-6">
-                {project.techStack.map((tech: string) => (
-                  <span
-                    key={tech}
-                    className="rounded-xl bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border border-white/5 transition-all duration-300 group-hover:border-indigo-500/30 group-hover:bg-indigo-500/10 group-hover:text-indigo-300"
+            className="h-full w-full bg-transparent p-0"
+            title={
+              <div className="p-8 pb-6 flex flex-col flex-1 h-full">
+                <div className="flex flex-col flex-1 space-y-3">
+                  <div>
+                    <h3 className="text-2xl font-bold text-white transition-colors duration-300 group-hover:text-indigo-400">
+                      {project.title}
+                    </h3>
+                    <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500/60 transition-colors duration-300 group-hover:text-zinc-500">
+                      Role: <span className="text-zinc-400/80 group-hover:text-zinc-300">{project.role}</span>
+                    </div>
+                  </div>
+
+                  <p className="text-zinc-400 text-sm leading-relaxed line-clamp-2 sm:line-clamp-3">
+                    {project.shortDescription}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {project.techStack.map((tech: string) => (
+                      <span
+                        key={tech}
+                        className="text-[9px] font-medium uppercase tracking-wider text-zinc-500/50 transition-colors duration-300 group-hover:text-indigo-400/60 flex items-center"
+                      >
+                        {tech}
+                        <span className="ml-2 inline-block h-1 w-1 rounded-full bg-zinc-800 last:hidden" />
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
+                  <motion.div
+                    animate={{ x: isHovered ? 0 : -5, opacity: isHovered ? 1 : 0.4 }}
+                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-indigo-400"
                   >
-                    {tech}
-                  </span>
-                ))}
+                    View Case Study
+                    <motion.span
+                      animate={{ x: isHovered ? 5 : 0 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      →
+                    </motion.span>
+                  </motion.div>
+                  <ExternalLink className={`w-3.5 h-3.5 transition-all duration-300 ${isHovered ? 'text-indigo-400 scale-110' : 'text-zinc-600'}`} />
+                </div>
               </div>
             }
           />
@@ -130,7 +163,7 @@ export function Projects() {
               exit={{ opacity: 0, x: activeTab === 'professional' ? 20 : -20 }}
               transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
             >
-              <BentoGrid className="mx-auto max-w-7xl md:auto-rows-[35rem] gap-6">
+              <BentoGrid className="mx-auto max-w-7xl md:auto-rows-[38rem] gap-8">
                 {currentProjects.map((project, i) => (
                   <ProjectCard key={`${activeTab}-${project.id}`} project={project} index={i} />
                 ))}
@@ -144,26 +177,25 @@ export function Projects() {
 }
 
 const Skeleton = ({ project }: { project: Project }) => (
-  <div className="flex flex-1 w-full h-full min-h-[15rem] rounded-3xl overflow-hidden relative group/skeleton">
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.1),transparent)] z-0" />
-    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 z-0" />
+  <div className="p-3 pb-0">
+    <div className="relative w-full aspect-[16/9] max-h-[18rem] overflow-hidden rounded-[1.5rem] group/skeleton border border-white/5">
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 z-0" />
 
-    {/* Animated background lines */}
-    <div className="absolute inset-0 opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent)]">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent animate-shimmer" />
-      <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-indigo-500 to-transparent animate-shimmer-vertical" />
-    </div>
+      <Image
+        src={project.thumbnail}
+        alt={project.title}
+        fill
+        className="object-cover transition-transform duration-700 ease-out group-hover/skeleton:scale-110"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        loading="lazy"
+      />
 
-    <div className="relative w-full h-full flex items-center justify-center p-8 z-10 transition-transform duration-700 group-hover/skeleton:scale-105">
-      <div className="w-full max-w-[240px] aspect-[9/16] relative rounded-[2.5rem] overflow-hidden bg-[#050505] shadow-2xl transition-all duration-500">
-        <Image
-          src={project.thumbnail}
-          alt={project.title}
-          fill
-          className="object-cover opacity-90 transition-all duration-700 group-hover/skeleton:opacity-100 group-hover/skeleton:scale-110"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          loading="lazy"
-        />
+      {/* Overlay Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-60" />
+
+      {/* Subtle shimmer effect */}
+      <div className="absolute inset-0 opacity-0 group-hover/skeleton:opacity-100 transition-opacity duration-500">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent animate-shimmer" />
       </div>
     </div>
   </div>

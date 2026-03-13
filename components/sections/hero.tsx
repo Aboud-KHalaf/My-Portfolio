@@ -117,7 +117,7 @@ export function Hero() {
   };
 
   return (
-    <section className="group relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-32 text-center bg-transparent">
+    <section className="group relative flex min-h-screen flex-col items-center justify-center px-6 py-32 text-center bg-transparent">
       {/* Premium Ambient Glow (Liquid Light) - Strong Intensity */}
       <div className="absolute inset-0 z-0 h-full w-full overflow-hidden bg-[#020202]">
         {/* Intense Indigo Liquid Base */}

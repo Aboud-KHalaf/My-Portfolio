@@ -52,12 +52,21 @@ export const portfolioData = {
   ],
   personalProjects: [
     {
+      id: "ketabk",
+      slug: "ketabk",
+      title: "Ketabk",
+      role: "Flutter Developer",
+      shortDescription: "An intuitive book discovery and tracking application powered by the Google Books API, allowing users to build and manage their personal digital libraries.",
+      thumbnail: "/assets/projects/ketabk.png",
+      techStack: ["Flutter", "Dart", "Cubit", "Google Books API", "Hive"],
+    },
+    {
       id: "etc-store",
       slug: "etc-store",
       title: "ETC Store",
       role: "Full Stack Developer",
       shortDescription: "A modern E-commerce application featuring real-time inventory synchronization, secure payment processing, and a fluid shopping cart experience.",
-      thumbnail: "https://picsum.photos/seed/etcstore1/1600/900",
+      thumbnail: "/assets/projects/etc_store.png",
       techStack: ["Flutter", "Dart", "Firebase", "Stripe", "Cloud Functions"],
     },
     {
@@ -69,14 +78,6 @@ export const portfolioData = {
       thumbnail: "https://picsum.photos/seed/wamada1/1600/900",
       techStack: ["Flutter", "Dart", "Bloc", "SQLite", "REST API"],
     },
-    {
-      id: "ketabk",
-      slug: "ketabk",
-      title: "Ketabk",
-      role: "Flutter Developer",
-      shortDescription: "An intuitive book discovery and tracking application powered by the Google Books API, allowing users to build and manage their personal digital libraries.",
-      thumbnail: "https://picsum.photos/seed/ketabk1/1600/900",
-      techStack: ["Flutter", "Dart", "Cubit", "Google Books API", "Hive"],
-    },
+
   ],
 };
